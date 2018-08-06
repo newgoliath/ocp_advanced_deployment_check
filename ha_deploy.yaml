@@ -1,0 +1,18 @@
+---
+name: HA Deployment
+tasks:
+  - name: 3 masters working
+    shell: 
+
+  - name: 3 etcds working
+    shell: oc get componentstatus | grep etcd
+
+  - name: loadbalancer to access masters
+    shell: oc login -u system:admin --server="loadbalancer.$GUID.example.opentlc.com
+
+  - name: loadbalancer or dns for routers
+    shell: |
+      host test.apps.$GUID.example.opentlc.com
+
+  - name: at least two infranodes
+    shell: oc get nodes --show-labels | grep env=infra

@@ -1,0 +1,112 @@
+---
+
+name: Basic Infra
+tasks:
+  hosts: localhost
+  - name: login
+    shell: oc login -u system:admin
+
+  - name: smoke-test deploy
+    shell: |
+      oc new-project smoke-test
+      oc new-app nodejs-mongodb-persistent
+
+  - name: smoke-test app working
+    shell:
+
+  - name: 3 etcds working
+    shell: oc get componentstatus | grep etcd
+
+  - name: loadbalancer to access masters
+    shell: oc login -u system:admin --server="loadbalancer.$GUID.example.opentlc.com
+
+  - name: loadbalancer or dns for routers
+    shell: |
+      host test.apps.$GUID.example.opentlc.com
+
+  - name: at least two infranodes
+    shell: oc get nodes --show-labels | grep env=infra
+
+name: Environment Configuration
+tasks:
+  - name: NetworkPolicy configured
+    shell: oc get clusternetwork | grep ovs-networkpolicy
+
+  - name: Projects isolated by default
+    hosts: localhost
+    - name: masters configured
+      hosts: masters
+      shell: ansible masters -m shell -a "cat /etc/origin/master/master-config.yaml | grep projectRequestTemplate" master1.f187.internal | SUCCESS | rc=0 >>
+    - name: templates in place for default project template
+      shell: oc get templates project-request -o yaml
+    - name: test isolation
+      shell: make two  projects and try to access one from the other
+
+name: Logging, Metrics, Router, Registry
+tasks:
+  - name: aggregated logging configured 
+    shell: oc get all logging pods
+
+  - name: aggregated logging working
+    shell: oc get logs
+
+  - name: Service Catalog, Template Service Broker, and Ansible Service Broker are all working
+    shell: oc get whatever
+
+name: CICD Workflow
+tasks:
+  - name: Jenkins OpenShift plugin is used to create a CICD workflow
+    tasks:
+    - name: set default jenkins to jenkins-persistent
+      shell: |
+        cat /etc/origin/master/master-config.yaml
+        # BEGIN ANSIBLE MANAGED BLOCK
+        jenkinsPipelineConfig: 
+          autoProvisionEnabled: true 
+          templateNamespace: openshift 
+          templateName: jenkins-persistent 
+          serviceName: jenkins
+          parameters:
+        # END ANSIBLE MANAGED BLOCK
+    - name: create jenkins project
+      shell: oc new-project pipeline
+    - name: create limit range for jenkins project
+      shell: oc create -f jenkins-limits.yaml
+  - name: Jenkins deploys openshift-tasks app
+    shell: |
+      oc new-app -f https://raw.githubusercontent.com/lbroudoux/openshift-tasks/master/app-template.yaml  -n pipeline
+      oc create -f pipeline-dinges.yaml
+  - name: jenkins deploys openshift-tasks app
+    shell: oc start-build pipeline-street -n pipeline
+  - name: 4. HPA is configured and working on production deployment of openshift-tasks
+    shell: oc get hpa
+  - name: 5. Jenkins pod is running with a persistent volume (see above)
+    shell: oc get pvc
+
+name: Multitenancy
+tasks:
+  - name: Multiple clients created
+    shell: get projects (for alpha, beta, common)
+  - name: 
+    
+
+    htaccess htaccess.openshift amy htaccess htaccess.openshift betty
+ansible masters -b -i hosts -m copy -a "src=htaccess.openshift dest=/etc/origin/master/htaccess backup=yes"
+Listing 9. Setup
+# Clients will be named Alpha Corp and Beta Corp (client=alpha, client=beta), and a "client=common" for unspecified customers. # Alpha Corp will have two users, Amy and Andrew
+# Beta Corp will have two users, Brian and Betty
+# Setup users and passwords
+oc config set-credentials amy --password=r3dh4t1!
+oc config set-credentials andrew --password=r3dh4t1! oc config set-credentials brian --password=r3dh4t1! oc config set-credentials betty --password=r3dh4t1!
+# Setup cluster and nickname
+  oc config
+# Clients
+oc config oc config oc config oc config oc config
+set-cluster openshift1 --server=https://loadbalancer1.f187.example.opentlc.com:443
+set-context alpha --cluster=openshift1 --user=amy set-context alpha --cluster=openshift1 --user=andrew set-context beta --cluster=openshift1 --user=brian set-context beta --cluster=openshift1 --user=betty set-context common --cluster=openshift1 --user=
+# Contexts
+oc config use-context alpha
+oc config set contexts.alpha.namespace alphaproject oc config use-context beta
+oc config set contexts.beta.namespace betaproject
+oc config use-context common
+oc config set contexts.common.namespace commonproject

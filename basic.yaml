@@ -1,0 +1,15 @@
+---
+
+name: Basic Infra
+tasks:
+  hosts: localhost
+  - name: login
+    shell: oc login -u system:admin
+
+  - name: Registry has storage attached
+  - name: Registry storage working
+  - name: Router is configured on each infranode
+  - name: Can deploy simple app
+    shell: |
+      oc new-project smoke-test
+      oc new-app nodejs-mongodb-persistent
